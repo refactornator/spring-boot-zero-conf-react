@@ -1,12 +1,12 @@
-### bundle ###
-src/main/resources/static/*.js
-
 HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**
 !**/src/test/**
+
+### bundle ###
+src/main/resources/static/*.js
 
 ### STS ###
 .apt_generated
