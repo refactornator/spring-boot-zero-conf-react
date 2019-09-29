@@ -7,6 +7,7 @@ build/
 
 ### bundle ###
 src/main/resources/static/*.js
+src/main/resources/templates/*.html
 
 ### STS ###
 .apt_generated

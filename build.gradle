@@ -9,6 +9,17 @@ group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
+bootRun {
+    sourceResources sourceSets.main
+}
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+}
+
 repositories {
     mavenCentral()
 }
@@ -16,6 +27,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
@@ -29,6 +41,11 @@ task installDependencies(type: NpmTask) {
 }
 
 task webpack(type: NodeTask, dependsOn: 'npmInstall') {
+    inputs.file('webpack.config.js')
+    inputs.dir('frontend')
+    outputs.dir('src/main/resources/static')
+    outputs.dir('src/main/resources/templates')
+
     script = project.file('node_modules/.bin/webpack')
 }
 
