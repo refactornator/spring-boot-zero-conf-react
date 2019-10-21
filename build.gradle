@@ -38,10 +38,6 @@ node {
     download = true
 }
 
-task installDependencies(type: NpmTask) {
-    args = ['install', '--save-dev', 'webpack', 'webpack-cli']
-}
-
 task startNpmWatch(type: com.github.psxpaul.task.ExecFork) {
     inputs.file('webpack.config.js')
     inputs.dir('frontend')
