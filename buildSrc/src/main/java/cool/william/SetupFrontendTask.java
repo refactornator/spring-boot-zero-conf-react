@@ -6,7 +6,6 @@ import org.gradle.api.tasks.TaskAction;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.util.Collections;
 
@@ -33,9 +32,14 @@ class SetupFrontendTask extends DefaultTask {
             Files.walk(rootPath)
                     .filter(path -> !path.equals(rootPath))
                     .forEach(path -> {
-                        InputStream resourceAsStream = getClass().getResourceAsStream(path.toString());
-                        Path currentDirectory = Paths.get(path.getFileName().toString()).toAbsolutePath().normalize();
-                        copy(resourceAsStream, currentDirectory);
+                        String destination = path.subpath(1, path.getNameCount()).toString();
+                        if (Files.isDirectory(path)) {
+                            makeDirectory(destination);
+                        } else {
+                            InputStream resourceAsStream = getClass().getResourceAsStream(path.toString());
+                            Path currentDirectory = Paths.get(destination).toAbsolutePath().normalize();
+                            copyFromStream(resourceAsStream, currentDirectory);
+                        }
                     });
 
         } catch (Exception e) {
@@ -43,7 +47,7 @@ class SetupFrontendTask extends DefaultTask {
         }
     }
 
-    private void copy(InputStream source, Path destination) {
+    private void copyFromStream(InputStream source, Path destination) {
         try {
             Files.copy(source, destination, REPLACE_EXISTING);
         } catch (Exception e) {
@@ -59,16 +63,6 @@ class SetupFrontendTask extends DefaultTask {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    private void createFileFromResource(String fileToCreate, String resourceFilename) {
-        try {
-            Path resourcePath = Paths.get(getClass().getClassLoader().getResource(resourceFilename).toURI());
-            byte[] fileBytes = Files.readAllBytes(resourcePath);
-            Files.write(Paths.get(fileToCreate), fileBytes);
-        } catch (IOException | URISyntaxException e) {
-            e.printStackTrace();
         }
     }
 }
