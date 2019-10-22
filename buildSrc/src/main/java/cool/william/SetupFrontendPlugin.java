@@ -1,7 +1,6 @@
 package cool.william;
 
 import com.github.psxpaul.task.ExecFork;
-import groovy.lang.Closure;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -12,8 +11,18 @@ import java.util.Optional;
 public class SetupFrontendPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
-        project.getTasks()
+        project.getPluginManager()
+                .apply("com.moowork.node");
+
+        SetupFrontendTask setupFrontendTask = project.getTasks()
                 .create("setupReactFrontend", SetupFrontendTask.class);
+
+        Optional<Task> npmInstall = project.getTasksByName("npmInstall", true)
+                .stream()
+                .findFirst();
+        if(npmInstall.isPresent()) {
+            setupFrontendTask.finalizedBy(npmInstall.get());
+        }
 
         project.getPluginManager()
                 .apply("com.github.psxpaul.execfork");
@@ -23,6 +32,7 @@ public class SetupFrontendPlugin implements Plugin<Project> {
         startWebpackWatch.setExecutable("node_modules/.bin/webpack");
         startWebpackWatch.setArgs(Arrays.asList(new String[]{"--watch"}));
         startWebpackWatch.setWaitForOutput("Built at");
+        npmInstall.ifPresent(startWebpackWatch::dependsOn);
 
         Optional<Task> bootRun = project.getTasksByName("bootRun", true)
                 .stream()

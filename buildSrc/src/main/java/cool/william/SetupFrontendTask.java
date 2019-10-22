@@ -19,16 +19,22 @@ class SetupFrontendTask extends DefaultTask {
     @TaskAction
     void setupReactFrontend() {
         try {
-            String rootName = "/react";
-            URI rootUri = getClass().getResource(rootName).toURI();
+            String rootName = "react";
+            URI rootUri = getClass().getClassLoader().getResource(rootName).toURI();
             Path rootPath;
             if (rootUri.getScheme().equals("jar")) {
-                FileSystem fileSystem = FileSystems.newFileSystem(rootUri, Collections.<String, Object>emptyMap());
-                rootPath = fileSystem.getPath(rootName);
+                FileSystem fileSystem;
+                try {
+                    fileSystem = FileSystems.getFileSystem(rootUri);
+                } catch (FileSystemNotFoundException e) {
+                    fileSystem = FileSystems.newFileSystem(rootUri, Collections.<String, Object>emptyMap());
+                }
+                rootPath = fileSystem.getPath(rootName).toAbsolutePath();
             } else {
                 rootPath = Paths.get(rootUri);
             }
 
+            String projectDirectory = System.getProperty("user.dir");
             Files.walk(rootPath)
                     .filter(path -> !path.equals(rootPath))
                     .forEach(path -> {
@@ -37,7 +43,7 @@ class SetupFrontendTask extends DefaultTask {
                             makeDirectory(destination);
                         } else {
                             InputStream resourceAsStream = getClass().getResourceAsStream(path.toString());
-                            Path currentDirectory = Paths.get(destination).toAbsolutePath().normalize();
+                            Path currentDirectory = Paths.get(projectDirectory, destination).toAbsolutePath().normalize();
                             copyFromStream(resourceAsStream, currentDirectory);
                         }
                     });
