@@ -1,5 +1,6 @@
 package cool.william;
 
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
@@ -9,9 +10,14 @@ import java.net.URI;
 import java.nio.file.*;
 import java.util.Collections;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.nio.file.StandardOpenOption.APPEND;
+import static java.nio.file.StandardOpenOption.CREATE;
 
 class SetupFrontendTask extends DefaultTask {
+
+    private String projectDirectory = System.getProperty("user.dir");
 
     public SetupFrontendTask() {
     }
@@ -33,8 +39,6 @@ class SetupFrontendTask extends DefaultTask {
             } else {
                 rootPath = Paths.get(rootUri);
             }
-
-            String projectDirectory = System.getProperty("user.dir");
             Files.walk(rootPath)
                     .filter(path -> !path.equals(rootPath))
                     .forEach(path -> {
@@ -48,7 +52,26 @@ class SetupFrontendTask extends DefaultTask {
                         }
                     });
 
+            appendToGitIgnore();
+
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void appendToGitIgnore() {
+        String content =
+                "### Frontend Dependencies ###\n" +
+                "node_modules/\n\n" +
+                "### Frontend Bundle ###\n" +
+                "src/main/resources/static/*.js\n" +
+                "src/main/resources/templates/*.html\n";
+        Path gitIgnore = Paths.get(projectDirectory, ".gitignore");
+        try {
+            if(!FileUtils.readFileToString(gitIgnore.toFile(), UTF_8).contains(content)) {
+                Files.writeString(gitIgnore, content, CREATE, APPEND);
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

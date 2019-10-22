@@ -34,9 +34,9 @@ out/
 ### Node ###
 npm-debug.log*
 
-# Dependency directories
+### Frontend Dependencies ###
 node_modules/
 
-### bundle ###
+### Frontend Bundle ###
 src/main/resources/static/*.js
 src/main/resources/templates/*.html
