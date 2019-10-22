@@ -5,10 +5,6 @@ build/
 !**/src/main/**
 !**/src/test/**
 
-### bundle ###
-src/main/resources/static/*.js
-src/main/resources/templates/*.html
-
 ### STS ###
 .apt_generated
 .classpath
@@ -40,3 +36,7 @@ npm-debug.log*
 
 # Dependency directories
 node_modules/
+
+### bundle ###
+src/main/resources/static/*.js
+src/main/resources/templates/*.html
