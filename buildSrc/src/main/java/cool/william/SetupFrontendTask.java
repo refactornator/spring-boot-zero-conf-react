@@ -13,7 +13,6 @@ import java.util.Collections;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE;
 
 class SetupFrontendTask extends DefaultTask {
 
@@ -60,16 +59,36 @@ class SetupFrontendTask extends DefaultTask {
     }
 
     private void appendToGitIgnore() {
-        String content =
-                "### Frontend Dependencies ###\n" +
-                "node_modules/\n\n" +
-                "### Frontend Bundle ###\n" +
-                "src/main/resources/static/*.js\n" +
-                "src/main/resources/templates/*.html\n";
         Path gitIgnore = Paths.get(projectDirectory, ".gitignore");
+
+        if(!Files.exists(gitIgnore)) {
+            try {
+                Files.createFile(gitIgnore);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         try {
-            if(!FileUtils.readFileToString(gitIgnore.toFile(), UTF_8).contains(content)) {
-                Files.writeString(gitIgnore, content, CREATE, APPEND);
+            String gitIgnoreContent = FileUtils.readFileToString(gitIgnore.toFile(), UTF_8);
+
+            if(!gitIgnoreContent.endsWith("\n")) {
+                Files.writeString(gitIgnore, "\n", APPEND);
+            }
+
+            if(!gitIgnoreContent.contains("### Frontend Dependencies ###")) {
+                String dependencies =
+                        "\n### Frontend Dependencies ###\n" +
+                        "node_modules/";
+                Files.writeString(gitIgnore, dependencies, APPEND);
+            }
+
+            if(!gitIgnoreContent.contains("### Frontend Bundle ###")) {
+                String bundle =
+                        "\n\n### Frontend Bundle ###\n" +
+                        "src/main/resources/static/*.js\n" +
+                        "src/main/resources/templates/*.html\n";
+                Files.writeString(gitIgnore, bundle, APPEND);
             }
         } catch (IOException e) {
             e.printStackTrace();
