@@ -20,9 +20,7 @@ public class SetupFrontendPlugin implements Plugin<Project> {
         Optional<Task> npmInstall = project.getTasksByName("npmInstall", true)
                 .stream()
                 .findFirst();
-        if(npmInstall.isPresent()) {
-            setupFrontendTask.finalizedBy(npmInstall.get());
-        }
+        npmInstall.ifPresent(setupFrontendTask::finalizedBy);
 
         project.getPluginManager()
                 .apply("com.github.psxpaul.execfork");
@@ -38,10 +36,18 @@ public class SetupFrontendPlugin implements Plugin<Project> {
                 .stream()
                 .findFirst();
         bootRun.ifPresent(startWebpackWatch::setStopAfter);
+        bootRun.ifPresent(task -> task.dependsOn(startWebpackWatch));
 
-        Optional<Task> processResources = project.getTasksByName("processResources", true)
+        ExecFork webpackBuild = project.getTasks()
+                .create("webpackBuild", ExecFork.class);
+        webpackBuild.setExecutable("node_modules/.bin/webpack");
+        webpackBuild.setArgs(Arrays.asList(new String[]{"--mode=production"}));
+        webpackBuild.setWaitForOutput("Built at");
+        npmInstall.ifPresent(webpackBuild::dependsOn);
+
+        Optional<Task> bootJar = project.getTasksByName("bootJar", true)
                 .stream()
                 .findFirst();
-        processResources.ifPresent(task -> task.dependsOn(startWebpackWatch));
+        bootJar.ifPresent(task -> task.dependsOn(webpackBuild));
     }
 }
