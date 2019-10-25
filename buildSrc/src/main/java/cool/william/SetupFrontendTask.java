@@ -40,7 +40,7 @@ class SetupFrontendTask extends DefaultTask {
                 rootPath = Paths.get(rootUri);
             }
             Files.walk(rootPath)
-                    .filter(path -> !path.equals(rootPath))
+                    .skip(1)
                     .forEach(path -> {
                         String destination = path.subpath(1, path.getNameCount()).toString();
                         if (Files.isDirectory(path)) {
