@@ -27,8 +27,8 @@ public class SetupFrontendPlugin implements Plugin<Project> {
 
         ExecFork startWebpackWatch = project.getTasks()
                 .create("startWebpackWatch", ExecFork.class);
-        startWebpackWatch.setExecutable("node_modules/.bin/webpack");
-        startWebpackWatch.setArgs(Arrays.asList(new String[]{"--watch"}));
+        startWebpackWatch.setExecutable("npm");
+        startWebpackWatch.setArgs(Arrays.asList(new String[]{"run-script", "start"}));
         startWebpackWatch.setWaitForOutput("Built at");
         npmInstall.ifPresent(startWebpackWatch::dependsOn);
 
@@ -40,8 +40,8 @@ public class SetupFrontendPlugin implements Plugin<Project> {
 
         ExecFork webpackBuild = project.getTasks()
                 .create("webpackBuild", ExecFork.class);
-        webpackBuild.setExecutable("node_modules/.bin/webpack");
-        webpackBuild.setArgs(Arrays.asList(new String[]{"--mode=production"}));
+        webpackBuild.setExecutable("npm");
+        webpackBuild.setArgs(Arrays.asList(new String[]{"run-script", "build"}));
         webpackBuild.setWaitForOutput("Built at");
         npmInstall.ifPresent(webpackBuild::dependsOn);
 

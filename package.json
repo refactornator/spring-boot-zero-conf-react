@@ -3,7 +3,13 @@
   "main": "frontend/index.js",
   "private": true,
   "scripts": {
+    "build": "webpack --mode=production",
+    "start": "webpack --mode=development --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "npm": ">=6.9.0",
+    "node": ">=12.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",

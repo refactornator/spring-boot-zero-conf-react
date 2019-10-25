@@ -5,7 +5,6 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const resources = path.resolve(__dirname, 'src/main/resources')
 
 module.exports = {
-  mode: 'development',
   entry: './frontend/index.js',
   output: {
     publicPath: '/',
