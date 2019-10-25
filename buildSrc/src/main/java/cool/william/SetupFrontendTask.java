@@ -2,6 +2,7 @@ package cool.william;
 
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.IOException;
@@ -11,11 +12,10 @@ import java.nio.file.*;
 import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.nio.file.StandardOpenOption.APPEND;
 
 class SetupFrontendTask extends DefaultTask {
-
+    private Logger logger = getProject().getLogger();
     private String projectDirectory = System.getProperty("user.dir");
 
     public SetupFrontendTask() {
@@ -23,6 +23,7 @@ class SetupFrontendTask extends DefaultTask {
 
     @TaskAction
     void setupReactFrontend() {
+        logger.info("Setting up a React frontend.");
         try {
             String rootName = "react";
             URI rootUri = getClass().getClassLoader().getResource(rootName).toURI();
@@ -73,14 +74,15 @@ class SetupFrontendTask extends DefaultTask {
             String gitIgnoreContent = FileUtils.readFileToString(gitIgnore.toFile(), UTF_8);
 
             if(!gitIgnoreContent.endsWith("\n")) {
-                Files.writeString(gitIgnore, "\n", APPEND);
+                Files.write(gitIgnore, "\n".getBytes(), APPEND);
             }
 
             if(!gitIgnoreContent.contains("### Frontend Dependencies ###")) {
                 String dependencies =
                         "\n### Frontend Dependencies ###\n" +
                         "node_modules/";
-                Files.writeString(gitIgnore, dependencies, APPEND);
+                logger.info("Writing Frontend Dependencies to .gitignore");
+                Files.write(gitIgnore, dependencies.getBytes(), APPEND);
             }
 
             if(!gitIgnoreContent.contains("### Frontend Bundle ###")) {
@@ -88,7 +90,8 @@ class SetupFrontendTask extends DefaultTask {
                         "\n\n### Frontend Bundle ###\n" +
                         "src/main/resources/static/*.js\n" +
                         "src/main/resources/templates/*.html\n";
-                Files.writeString(gitIgnore, bundle, APPEND);
+                logger.info("Writing Frontend Bundle to .gitignore");
+                Files.write(gitIgnore, bundle.getBytes(), APPEND);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -97,7 +100,9 @@ class SetupFrontendTask extends DefaultTask {
 
     private void copyFromStream(InputStream source, Path destination) {
         try {
-            Files.copy(source, destination, REPLACE_EXISTING);
+            Files.copy(source, destination);
+        } catch (FileAlreadyExistsException e) {
+            logger.warn("File already exists at " + destination.toString() + " - skipping");
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
