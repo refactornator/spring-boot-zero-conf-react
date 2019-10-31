@@ -1,4 +1,4 @@
-package cool.william;
+package cool.william.frontend;
 
 import com.github.psxpaul.task.ExecFork;
 import org.gradle.api.Plugin;

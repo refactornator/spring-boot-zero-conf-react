@@ -1,4 +1,4 @@
-package cool.william;
+package cool.william.frontend;
 
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
