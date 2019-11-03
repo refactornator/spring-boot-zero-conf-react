@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'cool.william.frontend'
-version = '0.0.1'
+version = '0.0.2'
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
@@ -30,7 +30,7 @@ pluginBundle {
     website = 'https://github.com/wlindner/spring-boot-zero-conf-react'
     vcsUrl = 'https://github.com/wlindner/spring-boot-zero-conf-react'
     tags = ['spring', 'react', 'frontend']
-    description = 'Setup a minimal React frontend and hook into Spring Boot tasks.'
+    description = 'Setup a minimal React frontend for your Spring Boot app.'
 }
 
 gradlePlugin {

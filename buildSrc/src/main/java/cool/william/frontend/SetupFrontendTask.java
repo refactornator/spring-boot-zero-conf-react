@@ -18,44 +18,47 @@ class SetupFrontendTask extends DefaultTask {
     private Logger logger = getProject().getLogger();
     private String projectDirectory = System.getProperty("user.dir");
 
-    public SetupFrontendTask() {
-    }
+    private String type = "react";
+
+    public SetupFrontendTask() {}
 
     @TaskAction
-    void setupReactFrontend() {
-        logger.info("Setting up a React frontend.");
-        try {
-            String rootName = "react";
-            URI rootUri = getClass().getClassLoader().getResource(rootName).toURI();
-            Path rootPath;
-            if (rootUri.getScheme().equals("jar")) {
-                FileSystem fileSystem;
-                try {
-                    fileSystem = FileSystems.getFileSystem(rootUri);
-                } catch (FileSystemNotFoundException e) {
-                    fileSystem = FileSystems.newFileSystem(rootUri, Collections.<String, Object>emptyMap());
+    void setupFrontend() {
+        if(type.equals("react")) {
+            logger.info("Setting up a React frontend.");
+            String rootName = type;
+            try {
+                URI rootUri = getClass().getClassLoader().getResource(rootName).toURI();
+                Path rootPath;
+                if (rootUri.getScheme().equals("jar")) {
+                    FileSystem fileSystem;
+                    try {
+                        fileSystem = FileSystems.getFileSystem(rootUri);
+                    } catch (FileSystemNotFoundException e) {
+                        fileSystem = FileSystems.newFileSystem(rootUri, Collections.<String, Object>emptyMap());
+                    }
+                    rootPath = fileSystem.getPath(rootName).toAbsolutePath();
+                } else {
+                    rootPath = Paths.get(rootUri);
                 }
-                rootPath = fileSystem.getPath(rootName).toAbsolutePath();
-            } else {
-                rootPath = Paths.get(rootUri);
+                Files.walk(rootPath)
+                        .skip(1)
+                        .forEach(path -> {
+                            String destination = path.subpath(1, path.getNameCount()).toString();
+                            if (Files.isDirectory(path)) {
+                                makeDirectory(destination);
+                            } else {
+                                InputStream resourceAsStream = getClass().getResourceAsStream(path.toString());
+                                Path currentDirectory = Paths.get(projectDirectory, destination).toAbsolutePath().normalize();
+                                copyFromStream(resourceAsStream, currentDirectory);
+                            }
+                        });
+
+                appendToGitIgnore();
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            Files.walk(rootPath)
-                    .skip(1)
-                    .forEach(path -> {
-                        String destination = path.subpath(1, path.getNameCount()).toString();
-                        if (Files.isDirectory(path)) {
-                            makeDirectory(destination);
-                        } else {
-                            InputStream resourceAsStream = getClass().getResourceAsStream(path.toString());
-                            Path currentDirectory = Paths.get(projectDirectory, destination).toAbsolutePath().normalize();
-                            copyFromStream(resourceAsStream, currentDirectory);
-                        }
-                    });
-
-            appendToGitIgnore();
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

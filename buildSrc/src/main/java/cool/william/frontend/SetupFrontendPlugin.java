@@ -15,7 +15,7 @@ public class SetupFrontendPlugin implements Plugin<Project> {
                 .apply("com.moowork.node");
 
         SetupFrontendTask setupFrontendTask = project.getTasks()
-                .create("setupReactFrontend", SetupFrontendTask.class);
+                .create("setupFrontend", SetupFrontendTask.class);
 
         Optional<Task> npmInstall = project.getTasksByName("npmInstall", true)
                 .stream()
@@ -25,29 +25,22 @@ public class SetupFrontendPlugin implements Plugin<Project> {
         project.getPluginManager()
                 .apply("com.github.psxpaul.execfork");
 
-        ExecFork startWebpackWatch = project.getTasks()
-                .create("startWebpackWatch", ExecFork.class);
-        startWebpackWatch.setExecutable("npm");
-        startWebpackWatch.setArgs(Arrays.asList(new String[]{"run-script", "start"}));
-        startWebpackWatch.setWaitForOutput("Built at");
-        npmInstall.ifPresent(startWebpackWatch::dependsOn);
+        ExecFork frontendStart = project.getTasks()
+                .create("frontendStart", ExecFork.class);
+        frontendStart.setExecutable("npm");
+        frontendStart.setArgs(Arrays.asList(new String[]{"run-script", "start"}));
+        frontendStart.setWaitForOutput("Built at");
+        npmInstall.ifPresent(frontendStart::dependsOn);
 
         Optional<Task> bootRun = project.getTasksByName("bootRun", true)
                 .stream()
                 .findFirst();
-        bootRun.ifPresent(startWebpackWatch::setStopAfter);
-        bootRun.ifPresent(task -> task.dependsOn(startWebpackWatch));
+        bootRun.ifPresent(frontendStart::setStopAfter);
 
-        ExecFork webpackBuild = project.getTasks()
-                .create("webpackBuild", ExecFork.class);
-        webpackBuild.setExecutable("npm");
-        webpackBuild.setArgs(Arrays.asList(new String[]{"run-script", "build"}));
-        webpackBuild.setWaitForOutput("Built at");
-        npmInstall.ifPresent(webpackBuild::dependsOn);
-
-        Optional<Task> bootJar = project.getTasksByName("bootJar", true)
-                .stream()
-                .findFirst();
-        bootJar.ifPresent(task -> task.dependsOn(webpackBuild));
+        ExecFork frontendBuild = project.getTasks()
+                .create("frontendBuild", ExecFork.class);
+        frontendBuild.setExecutable("npm");
+        frontendBuild.setArgs(Arrays.asList(new String[]{"run-script", "build"}));
+        npmInstall.ifPresent(frontendBuild::dependsOn);
     }
 }
