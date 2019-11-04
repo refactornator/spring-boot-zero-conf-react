@@ -9,8 +9,10 @@ group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
+bootJar.dependsOn frontendBuild
 bootRun {
     sourceResources sourceSets.main
+    dependsOn frontendStart
 }
 
 configurations {
@@ -30,6 +32,3 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
-
-bootRun.dependsOn frontendStart
-bootJar.dependsOn frontendBuild
