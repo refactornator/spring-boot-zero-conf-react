@@ -1,6 +1,6 @@
 package com.example.demo;
 
-import cool.william.IndexController;
+import cool.william.frontend.IndexController;
 import org.springframework.context.annotation.Import;
 
 import org.springframework.boot.SpringApplication;
